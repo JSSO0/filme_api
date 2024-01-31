@@ -1,6 +1,6 @@
 plugins {
 	id 'groovy'
-	id 'org.springframework.boot' version '3.2.2'
+	id 'org.springframework.boot' version '2.7.2'
 	id 'io.spring.dependency-management' version '1.1.4'
 }
 
@@ -16,10 +16,17 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.codehaus.groovy:groovy-all:2.4.21'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.apache.groovy:groovy'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+configurations {
+	integTestCompile.extendsFrom testCompile
+	integTestRuntime.extendsFrom testRuntime
 }
 
 tasks.named('test') {

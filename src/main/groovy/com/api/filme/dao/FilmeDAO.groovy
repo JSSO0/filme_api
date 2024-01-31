@@ -1,18 +1,104 @@
 package com.api.filme.dao
 
+import com.api.filme.model.FilmeModel
+import com.api.filme.sql.FilmeQuerys
+import com.api.filme.map.FilmeMap
 import groovy.sql.Sql
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Repository
 
+import javax.sql.DataSource
+
+@Repository
 class FilmeDAO {
 
-    static final String INSERT_FILME_SQL = "INSERT INTO filme (id, nome, descricao, duracao, avaliado, avaliacao) VALUES (?, ?, ?, ?, ?, ?)"
+    @Autowired
+    private FilmeQuerys filmeQuerys
 
-    Sql sql
+    private final Sql sql
 
-    FilmeService(Sql sql) {
-        this.sql = sql
+    @Autowired
+    FilmeDAO(DataSource dataSource, FilmeQuerys filmeQuerys) {
+        this.sql = new Sql(dataSource)
+        this.filmeQuerys = filmeQuerys
     }
 
-    void criarFilme(Filme filme) {
-        sql.executeInsert(INSERT_FILME_SQL, [filme.id, filme.nome, filme.descricao, filme.duracao, filme.avaliado, filme.avaliacao])
+    // Get geral
+    List<FilmeModel> buscarFilme() {
+        try {
+            return sql.rows(filmeQuerys.SELECT_FILME)
+        } catch (Exception e) {
+            // Trate a exceção ou lance uma exceção personalizada se necessário
+            throw new RuntimeException("Erro ao buscar filmes: ${e.message}", e)
+        }
+    }
+
+    // Get avaliado
+    List<FilmeModel> buscarFilmeAvaliado() {
+        try {
+            return sql.rows(filmeQuerys.SELECT_FILME_AVALIADO)
+        } catch (Exception e) {
+            // Trate a exceção ou lance uma exceção personalizada se necessário
+            throw new RuntimeException("Erro ao buscar filmes avaliados: ${e.message}", e)
+        }
+    }
+
+    // Get não avaliado
+    List<FilmeModel> buscarFilmeNaoAvaliado() {
+        try {
+            return sql.rows(filmeQuerys.SELECT_FILME_NAO_AVALIADO)
+        } catch (Exception e) {
+            // Trate a exceção ou lance uma exceção personalizada se necessário
+            throw new RuntimeException("Erro ao buscar filmes não avaliados: ${e.message}", e)
+        }
+    }
+
+    // Post
+    void criarFilme(FilmeModel filmeModel) {
+        try {
+            Map<String, Object> parametros = FilmeMap.mapearParaParametros(filmeModel)
+            sql.executeInsert(filmeQuerys.INSERT_FILME_SQL, parametros)
+        } catch (Exception e) {
+            // Trate a exceção ou lance uma exceção personalizada se necessário
+            throw new RuntimeException("Erro ao criar filme: ${e.message}", e)
+        }
+    }
+
+    // Put
+    void atualizarFilme(FilmeModel filmeModel) {
+        try {
+            // Verifica se o filme existe antes de atualizar
+            if (filmeExiste(filmeModel.id as Long)) {
+                Map<String, Object> parametros = FilmeMap.mapearParaParametros(filmeModel)
+                sql.executeUpdate(filmeQuerys.UPDATE_FILME, parametros)
+            }
+        } catch (Exception e) {
+            // Trate a exceção ou lance uma exceção personalizada se necessário
+            throw new RuntimeException("Erro ao atualizar filme: ${e.message}", e)
+        }
+    }
+
+    // Delete
+    void deleteFilme(FilmeModel filmeModel) {
+        try {
+            // Verifica se o filme existe antes de excluir
+            if (filmeExiste(filmeModel.id as Long)) {
+                sql.executeUpdate(filmeQuerys.DELETE_FILME, [filmeModel.id])
+            }
+        } catch (Exception e) {
+            // Trate a exceção ou lance uma exceção personalizada se necessário
+            throw new RuntimeException("Erro ao excluir filme: ${e.message}", e)
+        }
+    }
+
+    // Verifica se um filme com o ID fornecido existe
+    private boolean filmeExiste(Long id) {
+        try {
+            def resultado = sql.firstRow(filmeQuerys.SELECT_FILME_ESPECIFICO, [id])
+            return resultado.count > 0
+        } catch (Exception e) {
+            // Trate a exceção ou lance uma exceção personalizada se necessário
+            throw new RuntimeException("Erro ao verificar existência do filme: ${e.message}", e)
+        }
     }
 }
