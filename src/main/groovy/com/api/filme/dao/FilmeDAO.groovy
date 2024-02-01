@@ -57,7 +57,9 @@ class FilmeDAO {
     void criarFilme(FilmeModel filmeModel) {
         try {
             Map<String, Object> parametros = FilmeMap.mapearParaParametros(filmeModel)
-            sql.executeInsert(filmeQuerys.INSERT_FILME_SQL, parametros)
+            def sqlQuery = filmeQuerys.INSERT_FILME_SQL
+            println "Executando SQL: ${sqlQuery} com parâmetros: ${parametros}"
+            sql.executeInsert(sqlQuery, parametros)
         } catch (Exception e) {
             // Trate a exceção ou lance uma exceção personalizada se necessário
             throw new RuntimeException("Erro ao criar filme: ${e.message}", e)

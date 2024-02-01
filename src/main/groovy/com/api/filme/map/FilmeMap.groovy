@@ -6,12 +6,13 @@ class FilmeMap {
 
         static Map<String, Object> mapearParaParametros(FilmeModel filmeModel) {
             return [
+                    'id': filmeModel.id,
                     'nome': filmeModel.nome,
                     'descricao': filmeModel.descricao,
                     'duracao': filmeModel.duracao,
                     'avaliado': filmeModel.avaliado,
-                    'avaliacao': filmeModel.avaliacao,
-                    'id': filmeModel.id
+                    'avaliacao': filmeModel.avaliacao
+
             ] as Map<String, Object>
         }
 

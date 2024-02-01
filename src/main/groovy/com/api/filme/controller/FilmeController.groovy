@@ -40,6 +40,7 @@ class FilmeController {
 
     @PostMapping
     ResponseEntity<String> criarFilme(@RequestBody FilmeModel filmeModel) {
+        System.out.println(filmeModel)
         filmeService.criarFilme(filmeModel)
         return ResponseEntity.status(HttpStatus.CREATED).body("Filme criado com sucesso.")
     }
