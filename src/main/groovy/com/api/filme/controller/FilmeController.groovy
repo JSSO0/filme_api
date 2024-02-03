@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+
 
 @RestController
 @RequestMapping("/filmes")
@@ -40,21 +42,24 @@ class FilmeController {
 
     @PostMapping
     ResponseEntity<String> criarFilme(@RequestBody FilmeModel filmeModel) {
-        System.out.println(filmeModel)
-        filmeService.criarFilme(filmeModel)
-        return ResponseEntity.status(HttpStatus.CREATED).body("Filme criado com sucesso.")
+        try {
+            filmeService.criarFilme(filmeModel)
+            return ResponseEntity.status(HttpStatus.CREATED).body("Filme criado com sucesso.")
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao criar Filme Step 1: " + e.getMessage(), e);
+        }
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<String> atualizarFilme(@PathVariable Long id, @RequestBody FilmeModel filmeModel) {
+    ResponseEntity<String> atualizarFilme(@PathVariable UUID id, @RequestBody FilmeModel filmeModel) {
         filmeModel.id = id
         filmeService.atualizarFilme(filmeModel)
         return ResponseEntity.ok("Filme atualizado com sucesso.")
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<String> excluirFilme(@PathVariable Long id) {
-        filmeService.excluirFilme(id as FilmeModel)
+    ResponseEntity<String> excluirFilme(@PathVariable UUID id) {
+        filmeService.excluirFilme(id)
         return ResponseEntity.ok("Filme excluído com sucesso.")
     }
 

@@ -7,12 +7,13 @@ import org.springframework.stereotype.Component
 class FilmeMap {
 
     static Map<String, Object> mapearParaParametros(FilmeModel filmeModel) {
-        ['id': filmeModel.id,
-         'nome': filmeModel.nome,
-         'descricao': filmeModel.descricao,
-         'duracao': filmeModel.duracao,
-         'avaliado': filmeModel.avaliado,
-         'avaliacao': filmeModel.avaliacao]
+        return [
+                'id': UUID.fromString(filmeModel.id),
+                'nome': filmeModel.nome,
+                'descricao': filmeModel.descricao,
+                'duracao': filmeModel.duracao,
+                'avaliado': filmeModel.avaliado,
+                'avaliacao': filmeModel.avaliacao ?: 0
+        ] as Map<String, Object>
     }
-
 }

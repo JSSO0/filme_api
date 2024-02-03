@@ -3,7 +3,7 @@ package com.api.filme.model
 import groovy.transform.Canonical
 
 @Canonical
-class Filme {
+class FilmeModel {
     String id = UUID.randomUUID().toString()
     String nome
     String descricao

@@ -3,13 +3,13 @@ URL: http://localhost:8080/filmes
 Método: POST
 Body (JSON):
 json
-{
-    "nome": "Nome do Filme",
-    "descricao": "Descrição do Filme",
-    "duracao": 120,
-    "avaliado": false,
-    "avaliacao": 0.0
-}
+   {
+        "nome": "edfsfduu",
+        "descricao": "textto",
+        "duracao": 120,
+        "avaliado": true,
+        "avaliacao": 5
+   }
 Certifique-se de ajustar a URL conforme necessário, dependendo de onde sua aplicação está hospedada e a porta que está usando.
 
 2. Obter todos os Filmes (GET):

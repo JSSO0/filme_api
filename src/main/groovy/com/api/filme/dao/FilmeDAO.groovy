@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
 
 import javax.sql.DataSource
+import org.springframework.http.HttpStatus
+
+import java.sql.PreparedStatement
 
 @Repository
 class FilmeDAO {
@@ -17,10 +20,24 @@ class FilmeDAO {
 
     private final Sql sql
 
+    private FilmeMap filmeMap
+
+
     @Autowired
-    FilmeDAO(DataSource dataSource, FilmeQuerys filmeQuerys) {
+    FilmeDAO(DataSource dataSource, FilmeQuerys filmeQuerys, FilmeMap filmeMap) {
         this.sql = new Sql(dataSource)
         this.filmeQuerys = filmeQuerys
+        this.filmeMap = filmeMap
+    }
+
+    void criarFilme(FilmeModel filmeModel) {
+        try {
+            def sqlQuery = filmeQuerys.INSERT_FILME_SQL
+            def parametros = FilmeMap.mapearParaParametros(filmeModel)
+            sql.executeUpdate(sqlQuery, parametros)
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao criar filme: ${e.message}", e)
+        }
     }
 
     // Get geral
@@ -54,23 +71,14 @@ class FilmeDAO {
     }
 
     // Post
-    void criarFilme(FilmeModel filmeModel) {
-        try {
-            Map<String, Object> parametros = FilmeMap.mapearParaParametros(filmeModel)
-            def sqlQuery = filmeQuerys.INSERT_FILME_SQL
-            println "Executando SQL: ${sqlQuery} com parâmetros: ${parametros}"
-            sql.executeInsert(sqlQuery, parametros)
-        } catch (Exception e) {
-            // Trate a exceção ou lance uma exceção personalizada se necessário
-            throw new RuntimeException("Erro ao criar filme: ${e.message}", e)
-        }
-    }
+
 
     // Put
     void atualizarFilme(FilmeModel filmeModel) {
         try {
             // Verifica se o filme existe antes de atualizar
-            if (filmeExiste(filmeModel.id as Long)) {
+            def verificaExistencia = sql.firstRow(filmeQuerys.VERIFICAR_FILME_ID, [filmeModel.id])
+            if (verificaExistencia[1] > 1) {
                 Map<String, Object> parametros = FilmeMap.mapearParaParametros(filmeModel)
                 sql.executeUpdate(filmeQuerys.UPDATE_FILME, parametros)
             }
@@ -81,11 +89,11 @@ class FilmeDAO {
     }
 
     // Delete
-    void deleteFilme(FilmeModel filmeModel) {
+    void deleteFilme(UUID id) {
         try {
-            // Verifica se o filme existe antes de excluir
-            if (filmeExiste(filmeModel.id as Long)) {
-                sql.executeUpdate(filmeQuerys.DELETE_FILME, [filmeModel.id])
+            def verificaExistencia = sql.firstRow(filmeQuerys.VERIFICAR_FILME_ID, [id])
+            if (verificaExistencia[1] > 1) {
+                sql.executeUpdate(filmeQuerys.DELETE_FILME, [id])
             }
         } catch (Exception e) {
             // Trate a exceção ou lance uma exceção personalizada se necessário
